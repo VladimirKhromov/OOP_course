@@ -18,6 +18,9 @@ class Loader:
 
         return seq
 
+
+
 # Note
+
 res = Loader.parse_format("4, 5, -6", Factory)
 print(res)
