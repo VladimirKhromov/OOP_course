@@ -16,10 +16,8 @@ class TextInput:
     @classmethod
     def check_name(cls, name):
         if len(name) >= 3 and len(name) < 50:
-            for char in name:
-                if char not in cls.CHARS_CORRECT:
-                    raise ValueError('некорректное имя поля')
-            return True
+            if frozenset(name) < frozenset(cls.CHARS_CORRECT):
+                return True
         raise ValueError('некорректное имя поля')
 
 
@@ -29,6 +27,7 @@ class PasswordInput:
     CHARS_CORRECT = CHARS + CHARS.upper() + digits
 
     def __init__(self, name, size = 10):
+        self.check_name(name)
         self.name = name  
         self.size = size
 
@@ -38,15 +37,9 @@ class PasswordInput:
     @classmethod
     def check_name(cls, name):
         if len(name) >= 3 and len(name) < 50:
-            for char in name:
-                if char not in cls.CHARS_CORRECT:
-                    raise ValueError('некорректное имя поля')
-            return True
-
+            if frozenset(name) < frozenset(cls.CHARS_CORRECT):
+                return True
         raise ValueError('некорректное имя поля')
-
-
-#####
 
 
 class FormLogin:
