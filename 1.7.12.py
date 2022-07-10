@@ -22,7 +22,7 @@ class Viber:
 
 	@classmethod
 	def total_messages(cls):
-		return len(dict_messages)
+		return len(cls.dict_messages)
 
 class Message:
 	def __init__(self, text):
