@@ -33,7 +33,6 @@ class EmailValidator:
 		checklist.append(split_mail[1].count(".") >= 1)
 		checklist.append(email.count("..") < 1)
 
-		print(checklist)
 		return all(checklist)
 
 	@classmethod
@@ -49,19 +48,6 @@ class EmailValidator:
 		return "".join(name_email) + "@gmail.com"
 
 
-
-
-res = EmailValidator.check_email("sc_lib@list.ru")
-print(res)
-res = EmailValidator.get_random_email()
-print(res)
-
-
-
-"""
-- допустимые символы: латинский алфавит, цифры, символы подчеркивания, точки и собачка @ (одна);
-- длина email до символа @ не должна превышать 100 (сто включительно);
-- длина email после символа @ не должна быть больше 50 (включительно);
-- после символа @ обязательно должна идти хотя бы одна точка;
-- не должно быть двух точек подряд.
-"""
+res = EmailValidator.check_email("sc_lib@list.ru") # True
+print
+res = EmailValidator.check_email("sc_lib@list_ru") # False
