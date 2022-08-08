@@ -1,52 +1,23 @@
-from string import ascii_lowercase, digits
+class DigitRetrieve:
 
-class LoginForm:
-    def __init__(self, name, validators=None):
-        self.name = name
-        self.validators = validators
-        self.login = ""
-        self.password = ""
+    def __call__(self, object:str, *arg, **kwarg):
+        if isinstance(object, str):
 
-    def post(self, request):
-        self.login = request.get('login', "")
-        self.password = request.get('password', "")
-
-    def is_validate(self):
-        if not self.validators:
-            return True
-
-        for v in self.validators:
-            if not v(self.login) or not v(self.password):
-                return False
-
-        return True
+            try:
+                res = int(object)
+                return res
+            except ValueError:
+                return None
 
 
+dg = DigitRetrieve()
+d1 = dg("123")   # 123 (целое число)
+d2 = dg("45.54")   # None (не целое число)
+d3 = dg("-56")   # -56 (целое число)
+d4 = dg("12fg")  # None (не целое число)
+d5 = dg("abc")   # None (не целое число)
 
-class LengthValidator:
-    def __init__(self, min_length, max_length):
-        self.min_length = min_length
-        self.max_length = max_length
+st = ["123", "abc", "-56.4", "0", "-5"]
+digits = list(map(dg, st))  # [123, None, None, 0, -5]
 
-    def __call__(self, strg):
-        return self.min_length <= len(strg) <= self.max_length
-
-
-class CharsValidator:
-    def __init__(self, chars):    
-        self.chars = chars
-
-    def __call__(self, strg):
-        return set(strg) <= set(self.chars)
-
-
-lv = LengthValidator(1, 100) # min_length - минимально допустимая длина; max_length - максимально допустимая длина
-cv = CharsValidator(ascii_lowercase + digits) # chars - строка из допустимых символов
-
-
-print(isinstance(ascii_lowercase + digits, str))
-lg = LoginForm("Вход на сайт", validators=[LengthValidator(3, 50), CharsValidator(ascii_lowercase + digits)])
-lg.post({"login": "root", "password": "panda"})
-if lg.is_validate():
-    print("Дальнейшая обработка данных формы")
-
+print(digits)
