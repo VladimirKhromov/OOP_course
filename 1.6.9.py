@@ -1,5 +1,3 @@
-# Attention! не доделано!
-
 TYPE_OS = 1 # 1 - Windows; 2 - Linux
 
 class DialogWindows:
