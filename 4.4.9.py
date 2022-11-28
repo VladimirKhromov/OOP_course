@@ -3,24 +3,18 @@ def class_log(log_lst):
 		methods = {k: v for k, v in cls.__dict__.items() if callable(v)}
 		for k, v in methods.items():
 			setattr(cls, k, log_method_decotator(v))
-
 		return cls
 
 	def log_method_decotator(func):
 		def wrapper(*args, **kwargs):
 			log_lst.append(func.__name__)
 			return func(*args, **kwargs)
-
 		return wrapper
-
 	return log_method
 
 
 
-
-# здесь объявляйте декоратор и все что с ним связано
-
-vector_log = []   # наименование (vector_log) в программе не менять!
+vector_log = []   
 
 
 @class_log(vector_log)
@@ -36,8 +30,8 @@ class Vector:
 
 
 
-##  TEST ##
+## TEST ##
 
 v = Vector(1, 2, 3)
 v[0] = 10
-print(vector_log)
+assert vector_log == ['__init__', '__setitem__'], "не то"
