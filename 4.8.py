@@ -1,56 +1,69 @@
-class Function:
-    def __init__(self):
-        self._amplitude = 1.0     # амплитуда функции
-        self._bias = 0.0          # смещение функции по оси Oy
+class Vertex:
+	def __init__(self):
+		self._links = []
 
-    def __call__(self, x, *args, **kwargs):
-        return self._amplitude * self._get_function(x) + self._bias
+	@property
+	def links(self):
+		return self._links
 
-    def _get_function(self, x):
-        raise NotImplementedError('метод _get_function должен быть переопределен в дочернем классе')
-
-    def __add__(self, other):
-        if type(other) not in (int, float):
-            raise TypeError('смещение должно быть числом')
-
-        obj = self.__class__(self)
-        obj._bias = self._bias + other
-        return obj
-
-    def __mul__(self, other):
-        if type(other) not in (int, float):
-            raise TypeError('смещение должно быть числом')
-
-        obj = self.__class__(self)
-        obj._amplitude = self._amplitude * other
-        return obj               	
+class Link:
+	def __init__(self, v1, v2, dist = 1):
+		self._v1 = v1
+		self._v2 = v2
+		self._dist = dist
 
 
-class Linear(Function):
-	def __init__(self, *args):
+	@property
+	def v1(self):
+		return self._v1
+
+	@property
+	def v2(self):
+		return self._v2
+
+	@property
+	def dist(self):
+		return self._dist
+
+	@dist.setter
+	def dist(self, new_dist):
+		self._dist = new_dist
+
+class Station(Vertex):
+	def __init__(self, name):
 		super().__init__()
-		if isinstance(args[0],Linear):
-			k, b = args[0]._k, args[0]._b
-		else:
-			k, b = args[0], args[1]
-		self._k = k
-		self._b = b
+		self.name = name
 
-	def _get_function(self, x):
-		return self._k * x + self._b
+	def __str__(self):
+		return f'{self.name}'
+
+	def __repr__(self):
+		return f'{self.name}'
+
+class LinkMetro(Link):
+	def __init__(self, v1, v2, dist):
+		super().__init__(v1, v2, dist)
+
+class LinkedGraph:
+	def __init__(self):
+		self._links = []
+		self._vertex = []
+
+	def add_vertex(self, v):
+		if v not in self._vertex:
+			self._vertex.append(v)
 
 
-f = Linear(1, 0.5)
-f2 = f + 10   # изменение смещения (атрибут _bias)
-y1 = f(0)     # 0.5
-y2 = f2(0)    # 10.5
+	def add_link(self, link):
+		if link not in self._links:
+			self._links.append(link)
 
-print(y1,y2)
 
-f = Linear(1, 0.5)
+	def find_path(self, start_v, stop_v):
+		"""
+		возвращает список из вершин кратчайшего маршрута и 
+		список из связей этого же маршрута в виде кортежа
+		([вершины кратчайшего пути], [связи между вершинами])
+		"""
+		pass
 
-f2 = f * 5    # изменение амплитуды (атрибут _amplitude)
-y1 = f(0)     # 0.5
-y2 = f2(0)    # 2.5
-
-print(y1,y2)
