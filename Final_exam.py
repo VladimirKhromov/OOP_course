@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, shuffle
 
 class Ship:
 	""" Класс для представления кораблей """
@@ -8,7 +8,8 @@ class Ship:
 		Значения: 
 		x, y - координаты начала расположения корабля (целые числа);
 		length - длина корабля (число палуб);
-		tp - ориентация корабля (1 - горизонтальная; 2 - вертикальная).
+		tp - ориентация корабля (1 - горизонтальная; 2 - вертикальная);
+		is_move - может ли корабль совершать движения.
 		"""
 		self._length = length
 		self._tp = tp 
@@ -94,15 +95,14 @@ class Ship:
 		return False
 
 	def __repr__(self):
-		return f"Ship coords {self._x} {self._y} and length {self._length}\n"
+		return f"Ship coor:{self._x}-{self._y}, tp:{self._tp}, len:{self._length}\n"
 
 	def __getitem__(self, indx):
 		if 0 <= indx < self._length:
 			return self._cells[indx]
 
-	def __setitem__(self, key, item):
-		if 0 <= indx < self._length and key in (0, 1, 2):
-			self._cells[indx] = key
+	def __setitem__(self, indx, value):
+			self._cells[indx] = value
 
 
 class GamePole:
@@ -113,46 +113,94 @@ class GamePole:
 
 	def init(self):
 		""" Начальная инициализация игрового поля. """
+		# Создаем список кораблей
+		self._ships.clear()
+		for i in (4, 3, 3, 2, 2, 2, 1, 1, 1, 1):
+			self._ships.append(Ship(i, tp=randint(1, 2)))
+
+		# Расставляем координаты кораблей и проверяем на столкновение и выход за поле.
+		other_ships = []
+		for ship in self._ships:
+			while True:
+				# Задаем координаты
+				x = randint(0, self._size-1)
+				y = randint(0, self._size-1)
+				ship.set_start_coords(x, y)
+				if ship.is_out_pole(self._size):
+					continue
+
+				# Проверяем на столкновение
+				result = []
+				for other_ship in other_ships:
+					result.append(ship.is_collide(other_ship))
+				if any(result):
+					continue
+				other_ships.append(ship)
+				break
 
 	def get_ships(self):
 		return self._ships
 	def move_ships(self):
 		"""
-		Gеремещает каждый корабль из коллекции _ships на одну клетку (случайным образом вперед или назад)
+		Перемещает каждый корабль из коллекции _ships на одну клетку (случайным образом вперед или назад)
 		в направлении ориентации корабля; если перемещение в выбранную сторону невозможно 
 		(другой корабль или пределы игрового поля), то попытаться переместиться в противоположную сторону, 
 		иначе (если перемещения невозможны), оставаться на месте.
 		"""
-		pass
+		move_list = [1, -1]
+		shuffle(move_list)
+		for ship in self._ships:
+			if not ship._is_move:
+				continue
+
+			origin_coords = ship.get_start_coords()
+			ship.move(move_list[0])
+
+			result = [ship.is_collide(other_ship) for other_ship in self._ships if ship != other_ship]
+			if not any(result) and not ship.is_out_pole(self._size):
+				continue
+
+			ship.set_start_coords(*origin_coords)
+			ship.move(move_list[1])
+
+			result = [ship.is_collide(other_ship) for other_ship in self._ships if ship != other_ship]
+			if not any(result) and not ship.is_out_pole(self._size):
+				continue
+
+			ship.set_start_coords(*origin_coords)
 
 	def show(self):
 		"""
 		Отображение игрового поля в консоли.
 		Корабли отображаются значениями из коллекции _cells каждого корабля, вода - значением 0.
 		"""
-		pass
+
+		for row in self.get_pole():
+			for i in row:
+				print(i, end=' ')
+			print()
+
 
 	def get_pole(self):
 		"""
 		Получение текущего игрового поля в виде двумерного кортежа размером size x size элементов.
 		"""
-		pass
+		game_pole = [[0 for _ in range(self._size)] for _ in range(self._size)]
 
-## TEST ##
-if __name__ == "__main__":
-	ship1 = Ship(2, 2, 0, 0)
-	ship1.move(-2)
-	print(ship1.get_ship_coords(), ship1.is_out_pole(10))
-	print(Ship.__doc__)
+		for ship in self._ships:
+			result = ship.get_ship_coords()
+			for i in range(len(result)):
+				x, y = result[i][0], result[i][1]
+				game_pole[x][y] = ship._cells[i]
 
+		gp = []
+		for row in game_pole:
+			gp.append(tuple(row))
 
-	pole = GamePole()
-	pole.init()
+		gp = tuple(gp)
+		return gp
 
-	#print(pole.get_ships())
-
-
-## TEST Balackirev###
+## TEST Balackirev ###
 try:
 	ship = Ship(2)
 	ship = Ship(2, 1)
@@ -203,7 +251,9 @@ try:
 
 	pole_size_8 = GamePole(8)
 	pole_size_8.init()
+
 except:
-	print("Ошибка теста")
+	print()
+	print("*"*10, "\nОшибка теста")
 else:
 	print("Тесты пройдены")
